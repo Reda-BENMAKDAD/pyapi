@@ -6,14 +6,11 @@ api = Server(port=8000)
 
 # defining route handlers
 def root_route(req, res):
-    print(req)
     
     res.send("HTTP/1.1 200 OK\r\n\r\n<!DOCTYPE html><html><head></head><body>Hello World,  go to <a href=\"/books\">books route</a></body><html>".encode())
     
     
 def books_route(req, res):
-    print(req.uri)
-    print(req.method)
     res.sendall("HTTP/1.1 200 OK\r\n\r\n<!DOCTYPE html><html><head></head><body>Hello World, welcome to books route <form method=\"POST\" action=\"/books\"><label>enter book name</label><input type=\"text\" name=\"bookname\" /> <input type=\"submit\"/></form></body><html>".encode())
 
 
