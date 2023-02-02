@@ -3,6 +3,6 @@ __pycache__/
 ./__pycache__
 ./__pycache__/
 ./*/__pycache__
-dev_tests
+./dev_tests/
 *.pyc
 *.pyo
