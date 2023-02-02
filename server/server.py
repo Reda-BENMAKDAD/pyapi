@@ -59,14 +59,14 @@ class Server:
         if request.method in self.map_path_handler.keys():
             if request.uri in self.map_path_handler[request.method].keys():
                 handler = self.map_path_handler[request.method][request.uri]
-                handler(conn, request)
+                handler(request, conn)
             else:
                 conn.send("HTTP/1.1 200 ok\r\n\r\n sorry, ressource not found on this server".encode())
         else:
             conn.send("HTTP/1.1 200 ok\r\n\r\n sorry, ressource not found on this server".encode())
              
-        if not keep_alive: 
-            conn.close()
+        
+        conn.close()
             
         
         
