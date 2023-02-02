@@ -79,6 +79,8 @@ class request_parser:
         else :
             body = {}
             
+        # i forgot to parse the url parameters (/books?id=1&name=foo) i will add them later
+            
         return Request(method=request_as_object["method"], uri=request_as_object["uri"], protocol=request_as_object["protocol"], headers=request_as_object["headers"], body=request_as_object["body"], cookies=request_as_object["cookies"])
         
         
