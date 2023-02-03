@@ -4,3 +4,4 @@
 - [ ] Support HTTP/2.0 and comply fully with HTTP specifications
 - [ ] Support middleware
 - [ ] Support decorators
+- [ ] Add `setup.py` and upload it to PyPI
