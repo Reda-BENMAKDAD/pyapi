@@ -1,5 +1,5 @@
 from pprint import PrettyPrinter
-from HTTP.body_parser import body_parser
+from HTTP.body_parser import BodyParser
 from urllib.parse import unquote_plus
 class Request:
         
@@ -23,7 +23,7 @@ class Request:
 
 
 class request_parser:
-    body_parser = body_parser()
+    body_parser = BodyParser()
     
     def __init__(self):
         pass
