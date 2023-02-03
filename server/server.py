@@ -4,7 +4,16 @@ from HTTP.request_parser import request_parser # class that will parse the incom
 from HTTP.response_builder import response_builder # class that will build the response that we want to send
 
 class Server:
-    
+    def add_error(self, status, handler):
+        self.error_handlers[status] = handler
+    def handle_error(self, status, req, res):
+        (self.error_handlers.get(status) or self.error_handler)(status, req, res)
+    def error_handler(self, status, req, res): # ONLY FOR ERRORS CALLED USING HANDLE_ERROR!
+        res.send({
+            404 : "<h1>This Resource Was Not Found On This Server<h1>",
+            405 : "<h1>This Method Is Not Allowed On This Resource</h1>"
+        }[status], status=status)
+        
     def __init__(self, host="127.0.0.1", port=8000):
         self.host = host
         self.port = port
@@ -25,9 +34,7 @@ class Server:
             "TRACE": {},
             "CONNECT": {}
         }
-        
-        self.NOT_FOUND_MESSAGE = "<h1>This Ressource Was Not Found On This Server<h1>"
-        self.METHOD_NOT_ALLOWED_MESSAGE = "<h1>This Method Is Not Allowed On This Ressource</h1>"
+        self.error_handlers = {}
         
         
     # these are the function that map each route to it's supported method, and the callback function
@@ -59,9 +66,9 @@ class Server:
     
     def request_handler(self, conn: socket):
         # receiving the request from client and parse it with the request_parser class
-        request = conn.recv(1024).decode()
-        request = self.request_parser.parse(request)
-        
+        request = self.request_parser.parse(conn.recv(1024).decode()) ## I think this might fail for longer HTTP requests but I'll assume this works
+        response = response_builder(conn)
+
         # Note: here i should check for the "Connection" header in the request
         # if it's set to "close" should close the socket connection after sending the response
         # if it's set to "keep-alive" i should keep the socket connectin alive
@@ -73,14 +80,13 @@ class Server:
         # if it does not exist i send back "404 Not found" error message, or "405 method not allowed"
         if request.method in self.map_path_handler.keys():
             if request.uri in self.map_path_handler[request.method].keys():
-                handler = self.map_path_handler[request.method][request.uri]
-                handler(request, response_builder(conn))
+                self.map_path_handler[request.method][request.uri](request, response)
             else:
                 # i think instianciating the response_builder class for every response is not super efficient too
                 # i should find a better way to build responses with this class
-                response_builder(conn).send(self.NOT_FOUND_MESSAGE, status=404) # 404 NOT FOUND MESSAGE
+                self.handle_error(404, request, response)
         else:
-            response_builder(conn).send(self.METHOD_NOT_ALLOWED_MESSAGE, status=405)
+            self.handle_error(405, request, response)
             
     
         conn.close()
