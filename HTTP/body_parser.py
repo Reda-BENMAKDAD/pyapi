@@ -1,9 +1,5 @@
 import json
-class body_parser:
-    
-    def __init__(self):
-        pass
-    
+class BodyParser:  
     def parse(self, body: str, content_type: str) -> dict:
         if body == "":
             return {}
