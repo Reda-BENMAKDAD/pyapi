@@ -21,14 +21,11 @@ class Request:
     body: {pp.pformat(self.body)}"""
 
 
-
-class request_parser:
-    body_parser = BodyParser()
-    
-    def __init__(self):
-        pass
-    
-    def parse(self, request: str) -> Request:
+body_parser = BodyParser()
+def parse_cookies(self, cookies) -> dict[str, str]:
+        cookies = [cookie.split("=") for cookie in cookies.split(";")]   
+        return {key: value for key, value in cookies}
+def parse_request(self, request: str) -> Request:
         """
         Note: this parsing of the request can go wrong in many ways. it is not fully compliant with the HTTP specifications, 
         but should work for most of the cases.
@@ -88,9 +85,7 @@ class request_parser:
         return Request(method=request_as_object["method"], uri=request_as_object["uri"], protocol=request_as_object["protocol"], headers=request_as_object["headers"], body=request_as_object["body"], cookies=request_as_object["cookies"])
         
         
-    def parse_cookies(self, cookies) -> dict[str, str]:
-        cookies = [cookie.split("=") for cookie in cookies.split(";")]   
-        return {key: value for key, value in cookies}
+    
     
         
     
