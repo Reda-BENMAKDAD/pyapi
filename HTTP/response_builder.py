@@ -7,7 +7,7 @@ this response builder is still not fully compliant to the HTTP specifications bu
 i will improve it later
 """
 
-class response_builder:
+class Response:
     BASIC_HTTP_TEMPLATE = "HTTP/1.1 {status} {status_string}\r\n"
     
     def __init__(self, conn: socket):
