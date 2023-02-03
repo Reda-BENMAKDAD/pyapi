@@ -1,7 +1,7 @@
 from socket import *
 from threading import Thread
-from HTTP.request_parser import request_parser # class that will parse the incoming HTTP requests
-from HTTP.response_builder import response_builder # class that will build the response that we want to send
+from HTTP.request_parser import parse_request # class that will parse the incoming HTTP requests
+from HTTP.response_builder import Response # class that will build the response that we want to send
 
 class Server:
     def add_error(self, status, handler):
@@ -21,7 +21,6 @@ class Server:
         # and starts listening for incoming requests
         self.server = socket(AF_INET, SOCK_STREAM)
     
-        self.request_parser = request_parser()
         
         # this is the dictionnary that will map the routes to their handlers (callback functions)
         self.map_path_handler = {
@@ -66,8 +65,8 @@ class Server:
     
     def request_handler(self, conn: socket):
         # receiving the request from client and parse it with the request_parser class
-        request = self.request_parser.parse(conn.recv(1024).decode()) ## I think this might fail for longer HTTP requests but I'll assume this works
-        response = response_builder(conn)
+        request = parse_request(conn.recv(1024).decode()) ## I think this might fail for longer HTTP requests but I'll assume this works
+        response = Response(conn)
 
         # Note: here i should check for the "Connection" header in the request
         # if it's set to "close" should close the socket connection after sending the response
