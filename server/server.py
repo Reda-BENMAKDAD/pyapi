@@ -4,7 +4,15 @@ from HTTP.request_parser import request_parser # class that will parse the incom
 from HTTP.response_builder import response_builder # class that will build the response that we want to send
 
 class Server:
-    
+    def add_error(self, status, handler):
+        self.error_handlers[status] = handler
+    def handle_error(self, status, req, res):
+        (self.error_handlers.get(status) or self.error_handler)(status, req, res)
+    def error_handler(self, status, req, res): # ONLY FOR ERRORS CALLED USING HANDLE_ERROR!
+        
+        self.NOT_FOUND_MESSAGE = "<h1>This Resource Was Not Found On This Server<h1>"
+        self.METHOD_NOT_ALLOWED_MESSAGE = "<h1>This Method Is Not Allowed On This Ressource</h1>"
+        
     def __init__(self, host="127.0.0.1", port=8000):
         self.host = host
         self.port = port
@@ -25,9 +33,7 @@ class Server:
             "TRACE": {},
             "CONNECT": {}
         }
-        
-        self.NOT_FOUND_MESSAGE = "<h1>This Ressource Was Not Found On This Server<h1>"
-        self.METHOD_NOT_ALLOWED_MESSAGE = "<h1>This Method Is Not Allowed On This Ressource</h1>"
+        self.error_handlers = {}
         
         
     # these are the function that map each route to it's supported method, and the callback function
@@ -78,6 +84,7 @@ class Server:
             else:
                 # i think instianciating the response_builder class for every response is not super efficient too
                 # i should find a better way to build responses with this class
+                self.map_path_handler['GET'].get('/404')
                 response_builder(conn).send(self.NOT_FOUND_MESSAGE, status=404) # 404 NOT FOUND MESSAGE
         else:
             response_builder(conn).send(self.METHOD_NOT_ALLOWED_MESSAGE, status=405)
