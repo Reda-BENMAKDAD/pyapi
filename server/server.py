@@ -1,6 +1,6 @@
 from socket import *
 from threading import Thread
-from HTTP.request_parser import parse_request # class that will parse the incoming HTTP requests
+from HTTP.request_parser import Request # class that will parse the incoming HTTP requests
 from HTTP.response_builder import Response # class that will build the response that we want to send
 
 class Server:
@@ -14,9 +14,10 @@ class Server:
             405 : "<h1>This Method Is Not Allowed On This Resource</h1>"
         }[status], status=status)
         
-    def __init__(self, host="127.0.0.1", port=8000):
+    def __init__(self, host="127.0.0.1", port=8000, verbose=False):
         self.host = host
         self.port = port
+        self.verbose = verbose
         # the server is a socket that is bound to the the given host and port at the call of the start function
         # and starts listening for incoming requests
         self.server = socket(AF_INET, SOCK_STREAM)
@@ -63,9 +64,10 @@ class Server:
         self.map_path_handler["CONNECT"].update({path: handler})
         
     
-    def request_handler(self, conn: socket):
+    def request_handler(self, conn: socket, addr: tuple[str,int]):
+        
         # receiving the request from client and parse it with the request_parser class
-        request = parse_request(conn.recv(1024).decode()) ## I think this might fail for longer HTTP requests but I'll assume this works
+        request = Request(conn.recv(1024).decode()) ## I think this might fail for longer HTTP requests but I'll assume this works
         response = Response(conn)
 
         # Note: here i should check for the "Connection" header in the request
@@ -86,7 +88,8 @@ class Server:
                 self.handle_error(404, request, response)
         else:
             self.handle_error(405, request, response)
-            
+        if self.verbose:
+            print(f'{request.method} {request.uri} {response.status} - {addr[0]}')  
     
         conn.close()
             
@@ -94,16 +97,16 @@ class Server:
         
         
         
-    def start(self, debug=False):
+    def start(self):
         self.server.bind((self.host, self.port))
         self.server.listen(5)
-        if debug:
+        if self.verbose:
             print(f"Server is running on http://{self.host}:{self.port}")
         # server starts listening to incomming connections
         while True:
             conn, addr = self.server.accept()
             # each connection is handled in a seperate thread with the request-handler function (is this efficient ? probably not)
-            request_thread = Thread(target=self.request_handler, args=(conn,))
+            request_thread = Thread(target=self.request_handler, args=(conn,addr))
             request_thread.start()
             
         
