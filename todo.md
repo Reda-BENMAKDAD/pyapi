@@ -5,3 +5,5 @@
 - [ ] Support middleware
 - [ ] Support decorators
 - [ ] Add `setup.py` and upload it to PyPI
+- [ ] Prevent [parameter pollution](https://en.wikipedia.org/wiki/HTTP_parameter_pollution)
+- [ ] Use the Python `logging` module
