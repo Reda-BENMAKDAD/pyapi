@@ -1,9 +1,5 @@
-
-class body_parser:
-    
-    def __init__(self):
-        pass
-    
+import json
+class BodyParser:  
     def parse(self, body: str, content_type: str) -> dict:
         if body == "":
             return {}
@@ -20,6 +16,8 @@ class body_parser:
                 return self.parse_form_urlencoded(body, content_type)
             case "multipart/form-data":
                 self.parse_multipart_form_data(body, content_type)
+            case "application/json":
+                return {"content_type": content_type, "data": json.loads(body)}
             case _:
                 return body
             
