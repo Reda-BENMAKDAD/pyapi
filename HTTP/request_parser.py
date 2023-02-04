@@ -2,30 +2,11 @@ from pprint import PrettyPrinter
 from HTTP.body_parser import BodyParser
 from urllib.parse import unquote_plus
 class Request:
-        
-    def __init__(self, method: str, uri: str, protocol: str, headers: dict[str, str], body: dict, cookies: dict, query : dict[str,str]):
-        self.method = method
-        self.uri = uri
-        self.protocol = protocol
-        self.headers = headers
-        self.body = body
-        self.query = query
-        
-        def __str__(self):
-            pp = PrettyPrinter(indent=4)
-            return f"""method: {self.method}
-    uri: {self.uri}
-    protocol: {self.protocol}
-    headers: {pp.pformat(self.headers)}
-    query: {pp.pformat(self.query)}
-    body: {pp.pformat(self.body)}"""
-
-
-body_parser = BodyParser()
-def parse_cookies(self, cookies) -> dict[str, str]:
+    body_parser = BodyParser()
+    def parse_cookies(self, cookies) -> dict[str, str]:
         cookies = [cookie.split("=") for cookie in cookies.split(";")]   
         return {key: value for key, value in cookies}
-def parse_request(self, request: str) -> Request:
+    def parse_request(self, request: str) -> None:
         """
         Note: this parsing of the request can go wrong in many ways. it is not fully compliant with the HTTP specifications, 
         but should work for most of the cases.
@@ -44,7 +25,7 @@ def parse_request(self, request: str) -> Request:
                             }
         # getting the different parts of the HTTP request: request line, headers, and the body
         req_n_headers, body = request.split("\r\n\r\n", 1)
-        request_line, headers = req.split("\r\n", 1)
+        request_line, headers = req_n_headers.split("\r\n", 1)
         headers = headers.split("\r\n")
         
         
@@ -52,7 +33,7 @@ def parse_request(self, request: str) -> Request:
         request_line_parts = request_line.split(" ")
         request_as_object["method"], request_as_object["uri"], request_as_object["protocol"] = request_line_parts
         query_string = ''
-        if '?' in uri:
+        if '?' in request_as_object["uri"]:
             request_as_object["uri"], query_string = request_as_object["uri"].split("?", 1)
         
         # parsing the headers part to get a dictionary of headers
@@ -82,7 +63,20 @@ def parse_request(self, request: str) -> Request:
         if query_string:
             query_obj = {query.split("=")[0] : unquote_plus(query.split("=")[1], 'utf8') for query in query_string.split("&")}
         request_as_object["query"] = query_obj
-        return Request(method=request_as_object["method"], uri=request_as_object["uri"], protocol=request_as_object["protocol"], headers=request_as_object["headers"], body=request_as_object["body"], cookies=request_as_object["cookies"])
+        self.__dict__ = request_as_object ## a bit hacky but should work
+    def __init__(self, data : str):
+        self.parse_request(data)
+    def __str__(self):
+        pp = PrettyPrinter(indent=4)
+        return f"""method: {self.method}
+    uri: {self.uri}
+    protocol: {self.protocol}
+    headers: {pp.pformat(self.headers)}
+    query: {pp.pformat(self.query)}
+    body: {pp.pformat(self.body)}"""
+
+
+
         
         
     
