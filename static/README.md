@@ -1,0 +1,1 @@
+# This is a directory made just for the `example.py` file, it is not the actual static directory that a web developper would use to save his static files when creating a website with pyapi
