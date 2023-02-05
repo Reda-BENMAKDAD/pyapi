@@ -38,9 +38,7 @@ class RequestParser:
     # parsing the first line of the request, that contains the method, the uri (ressource requested), uri params and the protocol
     # TODO: handle errors if the request is malformed (not enough arguments for unpacking etc.)
     method, uri, protocol = request_line.split(" ")
-    uri_params: dict = {}
-    if '?' in uri:
-        uri_params = self.parse_url_params(uri)
+    uri_params: dict = self.parse_url_params(uri)
     
     # parsing the headers part to get a dictionary of headers
     headrs: dict = {}
@@ -63,8 +61,35 @@ class RequestParser:
     return Request(method, uri, protocol, uri_params, headers, cookies, body)
         
 def parse_cookies(cookies_str: str) -> dict:
+    cookies_str = parse.unquote(cookies_str)
     cookies: dict = {}
-    cookies_list = cookies_str.split("; ")
+    cookies_list = [cookie.strip() for cookie in cookies_str.split(";")]
+    for cookie in cookies_list:
+        if "=" not in cookie:
+            continue
+        cookie_parts = cookie.split("=", 1)
+        
+        if len(cookie_parts) != 2 or cookie_parts[0] == "":
+            continue
+        else:
+            cookies[cookie_parts[0]] = cookie_parts[1]
+        
+    return cookies
 
 def parse_url_params(url: str) -> dict:
-    pass
+    """
+    parses the url parameters and returns a dictionary of the parameters
+    """
+    url_params: dict = {}
+    url_parts = url.split("?")
+    url = url_parts[0]
+    params = url_parts[1]
+    params = unquote_plus(params)
+    params_list = params.split("&")
+    for param in params_list:
+        param_parts = param.split("=")
+        if len(param_parts) != 2:
+            continue
+        else:
+            url_params[param_parts[0]] = param_parts[1]
+    return url_params
