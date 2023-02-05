@@ -1,6 +1,6 @@
 from socket import *
 from threading import Thread
-from HTTP.request_parser import Request # class that will parse the incoming HTTP requests
+from HTTP.request_parser import RequestParser, Request # class that will parse the incoming HTTP requests
 from HTTP.response_builder import Response # class that will build the response that we want to send
 
 class Server:
@@ -35,6 +35,7 @@ class Server:
             "CONNECT": {}
         }
         self.error_handlers = {}
+        self.requestParser = RequestParser()
         
         
     # these are the function that map each route to it's supported method, and the callback function
@@ -67,7 +68,8 @@ class Server:
     def request_handler(self, conn: socket, addr: tuple[str,int]):
         
         # receiving the request from client and parse it with the request_parser class
-        request = Request(conn.recv(1024).decode()) ## I think this might fail for longer HTTP requests but I'll assume this works
+        request = self.requestParser.parse(conn.recv(1024).decode()) ## I think this might fail for longer HTTP requests but I'll assume this works
+        print(request)
         response = Response(conn)
 
         # Note: here i should check for the "Connection" header in the request

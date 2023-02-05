@@ -1,8 +1,17 @@
 import json
+from urllib import parse
+
+class Body:
+    
+    def __init__(self, content_type: str=None, data: dict={}):
+        self.content_type = content_type
+        self.data = data
+
+
 class BodyParser:  
     def parse(self, body: str, content_type: str) -> dict:
         if body == "":
-            return {}
+            return Body(content_type, {})
         
         if content_type == None:
             content_type = "text/plain"
@@ -19,21 +28,15 @@ class BodyParser:
             case "application/json":
                 return {"content_type": content_type, "data": json.loads(body)}
             case _:
-                return body
+                return Body(content_type, {})
             
             
     def parse_text_plain(self, body: str, content_type: str) -> dict:
-        return {
-            "content_type": content_type,
-            "data": body
-        }
+        return Body(content_type, body)
         
     
     def parse_form_urlencoded(self, body: str, content_type) -> dict:
-        body_r  = {
-            "content_type": content_type,
-            "data": {}
-        }
+        body = parse.unquote(body)
         params_obj = {}
         params = [param.split("=") for param in body.split("&")]
         for param in params:
@@ -41,8 +44,7 @@ class BodyParser:
             value = param[1]
             params_obj.update({key: value})
             
-        body_r["data"] = params_obj
-        return body_r
+        return Body(content_type, params_obj)
             
     
     def parse_multipart_form_data(self, body: str, content_type) -> dict:
