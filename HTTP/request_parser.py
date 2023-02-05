@@ -1,85 +1,70 @@
 from pprint import PrettyPrinter
 from HTTP.body_parser import BodyParser
 from urllib.parse import unquote_plus
+
+# the class request that will be passed to the user's route handler
 class Request:
-    body_parser = BodyParser()
-    def parse_cookies(self, cookies) -> dict[str, str]:
-        cookies = [cookie.split("=") for cookie in cookies.split(";")]   
-        return {key: value for key, value in cookies}
-    def parse_request(self, request: str) -> None:
-        """
-        Note: this parsing of the request can go wrong in many ways. it is not fully compliant with the HTTP specifications, 
-        but should work for most of the cases.
-        if you are comfortable with the HTTP protocol, please do not hesitate to improve this function to meet the specs, thanks!    
-        """
-        
-        # this is the object that will be returned after parsing the request and filling it
-        request_as_object = {
-                                "method": None,
-                                "uri": None,
-                                "protocol": None,
-                                "headers": None,
-                                "body": None,
-                                "cookies": None,
-                                "query": None
-                            }
-        # getting the different parts of the HTTP request: request line, headers, and the body
-        req_n_headers, body = request.split("\r\n\r\n", 1)
-        request_line, headers = req_n_headers.split("\r\n", 1)
-        headers = headers.split("\r\n")
-        
-        
-        # parsing the first line of the request, that contains the method, the uri (ressource requested) and the protocol
-        request_line_parts = request_line.split(" ")
-        request_as_object["method"], request_as_object["uri"], request_as_object["protocol"] = request_line_parts
-        query_string = ''
-        if '?' in request_as_object["uri"]:
-            request_as_object["uri"], query_string = request_as_object["uri"].split("?", 1)
-        
-        # parsing the headers part to get a dictionary of headers
-        headers_obj = {}
-        for header in headers:
-            header_parts = header.split(": ")
-            headers_obj[header_parts[0]] = header_parts[1]
-        request_as_object["headers"] = headers_obj
-        
-        # parsing the cookies in the headers
-        if "Cookie" in headers_obj:
-            cookies = self.parse_cookies(headers_obj["Cookie"])
-            request_as_object["cookies"] = cookies
-        else:
-            request_as_object["cookies"] = {}
-        
-        # parsing the body with the body parser only if the method is not GET
-        if request_as_object["method"] != "GET":
-            body = self.body_parser.parse(body, headers_obj["Content-Type"])
-            request_as_object["body"] = body
-        else :
-            body = {}
-
-        
-        # i forgot to parse the url parameters (/books?id=1&name=foo) i will add them later (added them now)
-        query_obj = {}
-        if query_string:
-            query_obj = {query.split("=")[0] : unquote_plus(query.split("=")[1], 'utf8') for query in query_string.split("&")}
-        request_as_object["query"] = query_obj
-        self.__dict__ = request_as_object ## a bit hacky but should work
-    def __init__(self, data : str):
-        self.parse_request(data)
-    def __str__(self):
-        pp = PrettyPrinter(indent=4)
-        return f"""method: {self.method}
-    uri: {self.uri}
-    protocol: {self.protocol}
-    headers: {pp.pformat(self.headers)}
-    query: {pp.pformat(self.query)}
-    body: {pp.pformat(self.body)}"""
-
-
-
-        
+    
+    def __init__(self, method, uri, protocol, uri_params: dict=None, headers: dict=None, cookies: dict=None, body: dict=None):
+        self.method = method
+        self.uri = uri
+        self.protocol = protocol
+        self.uri_params = uri_params
+        self.headers = headers
+        self.cookies = cookies
+        self.body = body        
         
     
-    
+class RequestParser:
+
+    def __init__(self, bodyParser):
+        self.bodyParser = BodyParser() # to let user pass a custom body parser
         
     
+    def parse(self, request: str) -> None:
+    """
+    Note: this parsing of the request can go wrong in many ways. it is not fully compliant with the HTTP specifications, 
+    but should work for most of the cases.
+    if you are comfortable with the HTTP protocol, please do not hesitate to improve this function to meet the specs, thanks!    
+    """    
+    # getting the different parts of the HTTP request: request line, headers, and the body
+    request_headers_body = request.split("\r\n\r\n", 1)
+    request_and_headers = request_headers_body[0]
+    body_str: str = request_headers_body[1] # body as string from the request
+    request_line, headers = request_and_headers.split("\r\n", 1) # request line
+    headers_lstr = headers.split("\r\n") # headers as a list of strings
+    
+    
+    # parsing the first line of the request, that contains the method, the uri (ressource requested), uri params and the protocol
+    # TODO: handle errors if the request is malformed (not enough arguments for unpacking etc.)
+    method, uri, protocol = request_line.split(" ")
+    uri_params: dict = {}
+    if '?' in uri:
+        uri_params = self.parse_url_params(uri)
+    
+    # parsing the headers part to get a dictionary of headers
+    headrs: dict = {}
+    for header: str in headers_lstr:
+        header_parts = header.split(": ")
+        headers[header_parts[0]] = header_parts[1]
+
+    # parsing the cookies in the headers
+    cookies: dict = {}
+    if "Cookie" in headers_obj:
+        cookies = self.parse_cookies(headers_obj["Cookie"])
+    
+    # parsing the body with the body parser only if the method is not GET
+    # TODO: find a good way to parse the body (improve the body parser to take into account the headers) and fit all of the
+    # information in the request object
+    body: dict = {}
+    if method != "GET":
+        body = self.bodyParser.parse(body_str, headers)
+        
+    return Request(method, uri, protocol, uri_params, headers, cookies, body)
+        
+def parse_cookies(cookies_str: str) -> dict:
+    cookies: dict = {}
+    cookies_list = cookies_str.split("; ")
+
+def parse_url_params(url: str) -> dict:
+    pass
