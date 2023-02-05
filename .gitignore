@@ -6,3 +6,4 @@ __pycache__/
 ./dev_tests/
 *.pyc
 *.pyo
+.vscode/
