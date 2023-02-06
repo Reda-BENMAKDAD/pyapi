@@ -2,7 +2,7 @@
 from server.server import Server
 
 # we first create our api by instantiating the Server class
-api = Server(host="0.0.0.0", port=8000, verbose=True)
+api = Server(port=8000, verbose=True)
 
 # now we define our route handlers
 # this is the function that handles the "/" route
