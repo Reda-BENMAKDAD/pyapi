@@ -1,6 +1,8 @@
 from socket import socket
 from HTTP.http_statuses import statuses
+from os import stat
 import json
+from HTTP.mimeTypes import mimetypes
 
 """
 this response builder is still not fully compliant to the HTTP specifications but it gets the job done for now
@@ -16,7 +18,6 @@ class Response:
     
     def send(self, data: any, status: int=200, headers: dict={}) -> None:
         self.status = status
-        # TODO: Get length of response for Content-Length 
         res = Response.BASIC_HTTP_TEMPLATE.format(status=status, status_string=statuses[status])
         res += self.build_headers(headers) + "\r\n"
         res += data
@@ -25,13 +26,29 @@ class Response:
     def render(self, html_file_path: str, status: int=200, headers: dict={}) -> None:
         self.status = status
         pass
-    def sendFile(self, file_path: str, status: int=200, header: dict={}) -> None:
-        self.status = status
-        with open(file_path, "rb") as f:
-            self.conn.sendfile(f)
+    def sendFile(self, file_path: str, status: int=200, headers: dict={}) -> None:
+        file_ext = "." + file_path.split(".")[-1]
+        content_type = mimetypes.get(file_ext, "text/plain")
+        bytes_file_size = stat(file_path).st_size
+        
+        headers["Content-Type"] = content_type
+        headers["Content-Length"] = bytes_file_size
+        
+        with open(file_path, "r") as f:
+            file_content = f.read()
+            
+        response = self.BASIC_HTTP_TEMPLATE.format(status=status, status_string=statuses[status])
+        response += self.build_headers(headers) + "\r\n"
+        response += file_content
+        self.conn.sendall(response.encode())
+
         
     def json(self, json_data: dict, status: int=200, headers: dict={}) -> None:
-        self.send(json.dumps(json_data))
+        response = self.BASIC_HTTP_TEMPLATE.format(status=status, status_string=statuses[status])
+        headers["Content-Type"] = "application/json"
+        response += self.build_headers(headers) + "\r\n"
+        response += json.dumps(json_data)
+        self.conn.sendall(response.encode())
             
             
     def build_headers(self, headers):
