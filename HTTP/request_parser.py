@@ -19,6 +19,7 @@ class Request:
         self.cookies = cookies
         self.body = body
         
+        
     def __str__(self):
         return f"""
 method: {self.method}
@@ -33,7 +34,7 @@ body: {pp.pformat(self.body.data)}
 class RequestParser:
 
     def __init__(self):
-        pass
+        self.bodyParser = BodyParser()
         
     
     def parse(self, request: str) -> None:
@@ -70,11 +71,10 @@ class RequestParser:
         # parsing the body with the body parser only if the method is not GET
         # TODO: find a good way to parse the body (improve the body parser to take into account the headers) and fit all of the
         # information in the request object
-        body: dict = {}
         if method != "GET":
-            body = self.bodyParser.parse(body_str, headers)
+            body = self.bodyParser.parse(body_str, headers["Content-Type"])
         else:
-            body = Body(body_str, {})
+            body = Body(headers["Content-Type"], {})
         
         return Request(method=method, uri=uri, protocol=protocol, uri_params=uri_params, headers=headers, cookies=cookies, body=body)
         
