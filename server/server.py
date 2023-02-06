@@ -4,16 +4,7 @@ from HTTP.request_parser import RequestParser, Request # class that will parse t
 from HTTP.response_builder import Response # class that will build the response that we want to send
 
 class Server:
-    def add_error(self, status, handler):
-        self.error_handlers[status] = handler
-    def handle_error(self, status, req, res):
-        (self.error_handlers.get(status) or self.error_handler)(status, req, res)
-    def error_handler(self, status, req, res): # ONLY FOR ERRORS CALLED USING HANDLE_ERROR!
-        res.send({
-            404 : "<h1>This Resource Was Not Found On This Server<h1>",
-            405 : "<h1>This Method Is Not Allowed On This Resource</h1>"
-        }[status], status=status)
-        
+    
     def __init__(self, host="127.0.0.1", port=8000, verbose=False):
         self.host = host
         self.port = port
@@ -21,8 +12,7 @@ class Server:
         # the server is a socket that is bound to the the given host and port at the call of the start function
         # and starts listening for incoming requests
         self.server = socket(AF_INET, SOCK_STREAM)
-    
-        
+
         # this is the dictionnary that will map the routes to their handlers (callback functions)
         self.map_path_handler = {
             "GET": {},
@@ -36,6 +26,18 @@ class Server:
         }
         self.error_handlers = {}
         self.requestParser = RequestParser()
+    
+    def add_error(self, status, handler):
+        self.error_handlers[status] = handler
+    def handle_error(self, status, req, res):
+        (self.error_handlers.get(status) or self.error_handler)(status, req, res)
+    def error_handler(self, status, req, res): # ONLY FOR ERRORS CALLED USING HANDLE_ERROR!
+        res.send({
+            404 : "<h1>This Resource Was Not Found On This Server<h1>",
+            405 : "<h1>This Method Is Not Allowed On This Resource</h1>"
+        }[status], status=status)
+        
+    
         
         
     # these are the function that map each route to it's supported method, and the callback function
@@ -69,7 +71,6 @@ class Server:
         
         # receiving the request from client and parse it with the request_parser class
         request = self.requestParser.parse(conn.recv(1024).decode()) ## I think this might fail for longer HTTP requests but I'll assume this works
-        print(request)
         response = Response(conn)
 
         # Note: here i should check for the "Connection" header in the request
