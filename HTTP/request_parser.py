@@ -33,7 +33,7 @@ body: {pp.pformat(self.body.data)}
 class RequestParser:
 
     def __init__(self):
-        self.bodyParser = BodyParser() # to let user pass a custom body parser
+        pass
         
     
     def parse(self, request: str) -> None:
@@ -53,7 +53,8 @@ class RequestParser:
         # parsing the first line of the request, that contains the method, the uri (ressource requested), uri params and the protocol
         # TODO: handle errors if the request is malformed (not enough arguments for unpacking etc.)
         method, uri, protocol = request_line.split(" ")
-        uri_params: dict = self.parse_url_params(uri)
+        uri_params = self.parse_uri_params(uri)
+        uri = uri.split("?")[0]
         
         # parsing the headers part to get a dictionary of headers
         headers: dict = {}
@@ -93,16 +94,16 @@ class RequestParser:
             
         return cookies
 
-    def parse_url_params(self, url: str) -> dict:
+    def parse_uri_params(self, url: str) -> dict:
         """
         parses the url parameters and returns a dictionary of the parameters
         """
-        url_params: dict = {}
+        uri_params: dict = {}
         if "?" not in url:
-            return url_params
-        url_parts = url.split("?")
-        url = url_parts[0]
-        params = url_parts[1]
+            return uri_params
+        uri_parts = url.split("?")
+        url = uri_parts[0]
+        params = uri_parts[1]
         params = unquote_plus(params)
         params_list = params.split("&")
         for param in params_list:
@@ -110,5 +111,5 @@ class RequestParser:
             if len(param_parts) != 2:
                 continue
             else:
-                url_params[param_parts[0]] = param_parts[1]
-        return url_params
+                uri_params[param_parts[0]] = param_parts[1]
+        return uri_params
