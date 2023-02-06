@@ -16,6 +16,11 @@ api.get("/", root_route)
 # at this point we can already launch the app and test it
 # api.start()
 # but we will define some other routes for the sake of example
+
+def query_route(req, res):
+    # this route returns the uri parameters parameters as a json object
+    res.json(req.uri_params)
+
 def book_route(req, res):
     # this route returns a form to the client, to submit a book name
     res.sendFile("./static/books.html")
@@ -34,6 +39,7 @@ you entered {book_name} as book name
     res.send(response)
     
 # now we map our route handlers to the routes
+api.get("/uri/query", query_route)
 api.get("/book", book_route)
 api.post("/books", books_post_route)
 
