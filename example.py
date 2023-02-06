@@ -8,7 +8,7 @@ api = Server(port=8000, verbose=True)
 # this is the function that handles the "/" route
 def root_route(req, res):
     # please look at the README.md file to understand the req and res parameters
-    res.send("Hello World")
+    res.sendFile("./static/index.html")
 
 # and we map our route handler to the route
 api.get("/", root_route)
@@ -32,7 +32,7 @@ def books_post_route(req, res):
 <html>
 <head></head>
 <body>
-you entered {book_name} as book name
+you entered <span style="color:blue">{book_name}</span> as book name
 </body>
 </html>"""
 
