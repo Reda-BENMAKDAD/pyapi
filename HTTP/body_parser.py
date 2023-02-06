@@ -31,11 +31,11 @@ class BodyParser:
                 return Body(content_type, {})
             
             
-    def parse_text_plain(self, body: str, content_type: str) -> dict:
+    def parse_text_plain(self, body: str, content_type: str) -> Body:
         return Body(content_type, body)
         
     
-    def parse_form_urlencoded(self, body: str, content_type) -> dict:
+    def parse_form_urlencoded(self, body: str, content_type: str) -> Body:
         body = parse.unquote(body)
         params_obj = {}
         params = [param.split("=") for param in body.split("&")]
