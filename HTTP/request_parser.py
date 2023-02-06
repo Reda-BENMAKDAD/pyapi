@@ -74,7 +74,7 @@ class RequestParser:
         if method != "GET":
             body = self.bodyParser.parse(body_str, headers["Content-Type"])
         else:
-            body = Body(headers["Content-Type"], {})
+            body = Body("", {})
         
         return Request(method=method, uri=uri, protocol=protocol, uri_params=uri_params, headers=headers, cookies=cookies, body=body)
         
