@@ -18,7 +18,7 @@
 <br>
 
 ## Try the server
-### ___launch the app I made___
+### ___Launch the app I made___
 To launch the demo server, clone the repository, and run the following commands.
 ```bash
 cd pyapi
@@ -26,12 +26,12 @@ python3 example.py
 ```
 The server will then be started, you can navigate to http://127.0.0.1:8000/ to see it in action, and read the code to understand how it works.
 
-### ___or create your own app___
+### ___Or create your own app___
 To create your own app with this server, you just have to import the server class to your file, and instanciate it, like the following.
 ```python
 from server import Server
 
-# the port parameter is optional, by default it will be 8000
+# The port parameter is optional, by default it will be 8000
 api = Server(port=8000)
 ```
 
@@ -39,19 +39,19 @@ Then you can define routes by making callback functions that will be called when
 1. __req__ : short for request, it's a class that contains all the information about the user's request, (HTTP method, url, headers...). It is made by parsing the HTTP request received from the user with the __request_parser__ class, and putting all the info in the __Request__ class, it is then passed to your function, with all the info about the request.
 <br>
 
-2. __res__ : short for response, this parameter is from which you wil send a response to the user, you can use the __*send*__ method to send plain text, html, xml..etc or __*sendfile*__ method to send a file
+2. __res__ : short for response, this parameter is from which you wil send a response to the user, you can use the __*send*__ method to send plain text, html, xml..etc or __*sendfile*__ method to send a file.
 
 ```python
-# creating routes for our application
+# Creating routes for our application
 
 from server import Server
 api = Server(port=8000)
 
-# we should first create route handlers
+# We should first create route handlers
 def root_route(req, res):
     res.send("Hello World")
 
-# and then map the route handler to a route and a method
+# And then map the route handler to a route and a method
 api.get("/", root_route) 
 
 def post_route(req, res):
