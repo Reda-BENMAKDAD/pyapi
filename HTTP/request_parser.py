@@ -46,7 +46,10 @@ class RequestParser:
         # getting the different parts of the HTTP request: request line, headers, and the body
         request_headers_body = request.split("\r\n\r\n", 1)
         request_and_headers = request_headers_body[0]
-        body_str: str = request_headers_body[1] # body as string from the request
+        if len(request_headers_body) < 2: # if there is no body in the request
+            body_str = ""
+        else:
+            body_str: str = request_headers_body[1] # body as string from the request
         request_line, headers_str = request_and_headers.split("\r\n", 1) # request line
         headers_lstr = headers_str.split("\r\n") # headers as a list of strings
         

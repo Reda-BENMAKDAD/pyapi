@@ -1,4 +1,4 @@
-# note: this code is heavily commented to help you understand what's going on, don't get afraid lol
+# note: this code is heavily commented to help you understand what's going on, don't be afraid lol
 from server.server import Server
 
 # we first create our api by instantiating the Server class
