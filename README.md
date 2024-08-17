@@ -1,12 +1,12 @@
 # **PYAPI**
 ## __Description of the project__
-> This is a simple web server built from scratch, to quickly and easily create your APIs. __to understad the project :__ basically I wanted to learn how frameworks like __*Flask*__ and __*Expressjs*__ work (how they handle routing, HTTP parsing, connections...etc.), so I created my own, with python and the built-in sockets module. I hope that my server will help you demistify these frameworks since mine is very simple to understand
+> This is a simple web server built from scratch, to quickly and easily create your APIs. __to understad the project :__ basically I wanted to learn how frameworks like __*Flask*__ and __*Expressjs*__ work (how they handle routing, HTTP parsing, connections...etc.), so I created my own Framework, with python and the built-in sockets module. I hope that my server will help you demistify these frameworks since mine is very simple to understand
 
 
 <br>
 
 ## In this package, you'll find the following components:
-- A server built with the sockets module
+- An HTTP server built with sockets from scratch
 - An HTTP request parser
 - An HTTP body parser
 - An HTTP response builder (to easily create valid HTTP responses)
