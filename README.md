@@ -35,7 +35,7 @@ from server import Server
 api = Server(port=8000)
 ```
 
-Then you can define routes by making callback functions that will be called when the user vists a route, these functions take two arguments:
+Then you can register routes by creating a function decorated by an `@api.get('/route')` decorator (adapt depending on the HTTP method needed) this function should take two arguments:
 1. __req__ : short for request, it's a class that contains all the information about the user's request, (HTTP method, url, headers...). It is made by parsing the HTTP request received from the user with the __request_parser__ class, and putting all the info in the __Request__ class, it is then passed to your function, with all the info about the request.
 <br>
 
@@ -47,18 +47,16 @@ Then you can define routes by making callback functions that will be called when
 from server import Server
 api = Server(port=8000)
 
-# We should first create route handlers
+# registering a route for the / url
+@api.get("/")
 def root_route(req, res):
     res.send("Hello World")
 
-# And then map the route handler to a route and a method
-api.get("/", root_route) 
-
+# example of a route with the POST HTTP method
+@api.post("/post")
 def post_route(req, res):
     submitted_data = req.body["data"]
     print(submitted_data)
-
-api.post("/post", post_route)
 ```
 
 Then you cann start your app.
