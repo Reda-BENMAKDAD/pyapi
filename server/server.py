@@ -27,7 +27,7 @@ class Server:
         self.error_handlers = {}
         self.requestParser = RequestParser()
     
-    def add_error(self, status, handler):
+    def add_error(self, status):
         self.error_handlers[status] = handler
     def handle_error(self, status, req, res):
         (self.error_handlers.get(status) or self.error_handler)(status, req, res)
@@ -42,41 +42,57 @@ class Server:
         
     # these are the function that map each route to it's supported method, and the callback function
     # that handles it, in the self.map_path_handler dictionnary
-    def get(self, path, handler):
-        self.map_path_handler["GET"].update({path: handler})
+    def get(self, path):
+        def decorator(handler):
+            self.map_path_handler["GET"].update({path: handler})
+        return decorator
     
-    def post(self, path, handler):
-        self.map_path_handler["POST"].update({path: handler})
+    def post(self, path):
+        def decorator(handler):
+            self.map_path_handler["POST"].update({path: handler})
+        return decorator
     
-    def put(self, path, handler):
-        self.map_path_handler["PUT"].update({path: handler})
+    def put(self, path):
+        def decorator(handler):
+            self.map_path_handler["PUT"].update({path: handler})
+        return decorator
     
-    def delete(self, path, handler):
-        self.map_path_handler["DELETE"].update({path: handler})
+    def delete(self, path):
+        def decorator(handler):
+            self.map_path_handler["DELETE"].update({path: handler})
+        return decorator
         
-    def head(self, path, handler):
-        self.map_path_handler["HEAD"].update({path: handler})
+    def head(self, path):
+        def decorator(handler):
+            self.map_path_handler["HEAD"].update({path: handler})
+        return decorator
         
-    def options(self, path, handler):
-        self.map_path_handler["OPTIONS"].update({path: handler})
+    def options(self, path):
+        def decorator(handler):
+            self.map_path_handler["OPTIONS"].update({path: handler})
+        return decorator
         
-    def trace(self, path, handler):
-        self.map_path_handler["TRACE"].update({path: handler})
+    def trace(self, path):
+        def decorator(handler):
+            self.map_path_handler["TRACE"].update({path: handler})
+        return decorator
         
-    def connect(self, path, handler):
-        self.map_path_handler["CONNECT"].update({path: handler})
+    def connect(self, path):
+        def decorator(handler):
+            self.map_path_handler["CONNECT"].update({path: handler})
+        return decorator
         
     
     def request_handler(self, conn: socket, addr: tuple[str,int]):
         
         # receiving the request from client and parse it with the request_parser class
-        request = self.requestParser.parse(conn.recv(1024).decode()) ## I think this might fail for longer HTTP requests but I'll assume this works
+        request = self.requestParser.parse(conn.recv(1024).decode()) ## I think this might fail for longer HTTP requests but I'll leave it like this for now
         response = Response(conn)
 
         # Note: here i should check for the "Connection" header in the request
         # if it's set to "close" should close the socket connection after sending the response
         # if it's set to "keep-alive" i should keep the socket connectin alive
-        # but for some reason it makes the web page on the browser bug
+        # but for some reason it makes the web page on the browser bug if i keep the connection alive
         # so i will just close the connection every time for now
         
         
@@ -106,11 +122,19 @@ class Server:
         if self.verbose:
             print(f"Server is running on http://{self.host}:{self.port}")
         # server starts listening to incomming connections
-        while True:
-            conn, addr = self.server.accept()
-            # each connection is handled in a seperate thread with the request-handler function (is this efficient ? probably not)
-            request_thread = Thread(target=self.request_handler, args=(conn,addr))
-            request_thread.start()
+        try:
+            while True:
+                conn, addr = self.server.accept()
+                # each connection is handled in a seperate thread with the request-handler function (is this efficient ? probably not)
+                request_thread = Thread(target=self.request_handler, args=(conn,addr))
+                request_thread.start()
+        except KeyboardInterrupt:
+            if self.verbose:
+                print("Server stopped")
+        finally:
+            self.server.close()
+            if self.verbose:
+                print("Server stopped")
             
         
 
