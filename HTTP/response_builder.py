@@ -32,7 +32,7 @@ class Response:
         bytes_file_size = stat(file_path).st_size
         
         headers["Content-Type"] = content_type
-        headers["Content-Length"] = bytes_file_size
+        headers["Content-Length"] = bytes_file_size + 100
         
         with open(file_path, "r") as f:
             file_content = f.read()
@@ -40,6 +40,7 @@ class Response:
         response = self.BASIC_HTTP_TEMPLATE.format(status=status, status_string=statuses[status])
         response += self.build_headers(headers) + "\r\n"
         response += file_content
+        print(response)
         self.conn.sendall(response.encode())
 
         
